@@ -4,6 +4,7 @@ const httpMocks = require("node-mocks-http");
 const newPost = require("../data/new-post");
 
 postModel.create = jest.fn();
+postModel.find = jest.fn();
 
 let req, res, next;
 
@@ -45,5 +46,18 @@ describe("Post Controller Create", () => {
     postModel.create.mockReturnValue(rejectedPromise);
     await postController.createPost(req, res, next);
     expect(next).toBeCalledWith(errorMessage);
+  });
+});
+
+describe("Post Controller Get", () => {
+  beforeEach(() => {});
+
+  it("should have a getPosts", () => {
+    expect(typeof postController.getPosts).toBe("function");
+  });
+
+  it("should call PostModel.find({})", async () => {
+    await postController.getPosts(req, res, next);
+    expect(postModel.find).toHaveBeenCalledWith({});
   });
 });

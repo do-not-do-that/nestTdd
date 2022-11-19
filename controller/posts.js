@@ -8,3 +8,11 @@ exports.createPost = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getPosts = async (req, res, next) => {
+  try {
+    await postModel.find({});
+  } catch (error) {
+    next(error);
+  }
+};

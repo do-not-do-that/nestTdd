@@ -11,7 +11,8 @@ exports.createPost = async (req, res, next) => {
 
 exports.getPosts = async (req, res, next) => {
   try {
-    await postModel.find({});
+    const allPosts = await postModel.find({});
+    res.status(200).json(allPosts);
   } catch (error) {
     next(error);
   }

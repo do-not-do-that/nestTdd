@@ -2,6 +2,7 @@ const postController = require("../../controller/posts");
 const postModel = require("../../models/Post");
 const httpMocks = require("node-mocks-http");
 const newPost = require("../data/new-post");
+const allPosts = require("../data/all-posts");
 
 postModel.create = jest.fn();
 postModel.find = jest.fn();
@@ -59,5 +60,17 @@ describe("Post Controller Get", () => {
   it("should call PostModel.find({})", async () => {
     await postController.getPosts(req, res, next);
     expect(postModel.find).toHaveBeenCalledWith({});
+  });
+
+  it("should return 200 response code", async () => {
+    await postController.getPosts(req, res, next);
+    expect(res.statusCode).toBe(200);
+    expect(res._isEndCalled()).toBeTruthy();
+  });
+
+  it("should return json body in response", async () => {
+    postModel.find.mockReturnValue(allPosts);
+    await postController.getPosts(req, res, next);
+    expect(res._getJSONData()).toStrictEqual(allPosts);
   });
 });

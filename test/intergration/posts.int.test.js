@@ -2,7 +2,7 @@ const request = require("supertest");
 const app = require("../../server");
 const newPost = require("../data/new-post");
 
-let firstProduct;
+let firstPost;
 it("POST /api/posts", async () => {
   const response = await request(app).post("/api/posts").send(newPost);
   expect(response.statusCode).toBe(201);
@@ -25,14 +25,14 @@ it("GET /api/posts", async () => {
   expect(Array.isArray(response.body)).toBeTruthy();
   expect(response.body[0].title).toBeDefined();
   expect(response.body[0].content).toBeDefined();
-  firstProduct = response.body[0];
+  firstPost = response.body[0];
 });
 
 it("GET /api/posts/:postId", async () => {
-  const response = await request(app).get("/api/posts/" + firstProduct._id);
+  const response = await request(app).get("/api/posts/" + firstPost._id);
   expect(response.statusCode).toBe(200);
-  expect(response.body.title).toBe(firstProduct.title);
-  expect(response.body.content).toBe(firstProduct.content);
+  expect(response.body.title).toBe(firstPost.title);
+  expect(response.body.content).toBe(firstPost.content);
 });
 
 it("GET id doesnt exist /api/posts/:postId", async () => {
@@ -40,4 +40,21 @@ it("GET id doesnt exist /api/posts/:postId", async () => {
     "/api/posts/6378c1dc34ab6269bf559777"
   );
   expect(response.statusCode).toBe(404);
+});
+
+it("PUT /api/posts", async () => {
+  const response = await request(app)
+    .put("/api/posts/" + firstPost._id)
+    .send({ title: "updated title", content: "updated content" });
+  expect(response.statusCode).toBe(200);
+  expect(response.body.title).toBe("updated title");
+  expect(response.body.content).toBe("updated content");
+});
+
+it("should return 404 on PUT /api/posts", async () => {
+  const response = await request(app)
+    .put("/api/posts/" + "6378c1dc34ab6269bf559777")
+    .send({ title: "updated title", content: "updated content" });
+
+  expect(response.status).toBe(404);
 });

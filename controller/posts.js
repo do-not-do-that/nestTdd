@@ -30,3 +30,20 @@ exports.getPostById = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.updatePost = async (req, res, next) => {
+  try {
+    const updatedPost = await postModel.findByIdAndUpdate(
+      req.params.postId,
+      req.body,
+      { new: true }
+    );
+    if (updatedPost) {
+      res.status(200).json(updatedPost);
+    } else {
+      res.status(404).send();
+    }
+  } catch (error) {
+    next(error);
+  }
+};

@@ -6,7 +6,9 @@ const allPosts = require("../data/all-posts");
 
 postModel.create = jest.fn();
 postModel.find = jest.fn();
+postModel.findById = jest.fn();
 
+const postId = "49ddkfj394739";
 let req, res, next;
 
 beforeEach(() => {
@@ -80,5 +82,41 @@ describe("Post Controller Get", () => {
     postModel.find.mockReturnValue(rejectedPromise);
     await postController.getPosts(req, res, next);
     expect(next).toBeCalledWith(errorMessage);
+  });
+});
+
+describe("Post Controller getPostById", () => {
+  it("should have a getPostById", () => {
+    expect(typeof postController.getPostById).toBe("function");
+  });
+
+  it("should call PostModel.findById", async () => {
+    req.params.postId = postId;
+    await postController.getPostById(req, res, next);
+    expect(postModel.findById).toBeCalledWith(postId);
+  });
+
+  it("should return json body and response code 200", async () => {
+    postModel.findById.mockReturnValue(newPost);
+    await postController.getPostById(req, res, next);
+    expect(res.statusCode).toBe(200);
+    expect(res._getJSONData()).toStrictEqual(newPost);
+    expect(res._isEndCalled()).toBeTruthy();
+  });
+
+  it("should return 404 when item doesnt exist", async () => {
+    postModel.findById.mockReturnValue(null);
+    await postController.getPostById(req, res, next);
+    expect(res.statusCode).toBe(404);
+    expect(res._isEndCalled()).toBeTruthy();
+  });
+
+  it("should handle errors", async () => {
+    const errorMessage = { message: "error" };
+    const rejectedPromise = Promise.reject(errorMessage);
+
+    postModel.findById.mockReturnValue(rejectedPromise);
+    await postController.getPostById(req, res, next);
+    expect(next).toHaveBeenCalledWith(errorMessage);
   });
 });

@@ -17,3 +17,16 @@ exports.getPosts = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getPostById = async (req, res, next) => {
+  try {
+    const post = await postModel.findById(req.params.postId);
+    if (post) {
+      res.status(200).json(post);
+    } else {
+      res.status(404).send({ message: "Post not found" });
+    }
+  } catch (error) {
+    next(error);
+  }
+};

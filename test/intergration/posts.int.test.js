@@ -56,5 +56,19 @@ it("should return 404 on PUT /api/posts", async () => {
     .put("/api/posts/" + "6378c1dc34ab6269bf559777")
     .send({ title: "updated title", content: "updated content" });
 
-  expect(response.status).toBe(404);
+  expect(response.statusCode).toBe(404);
+});
+
+it("DELETE /api/posts", async () => {
+  const response = await request(app)
+    .delete("/api/posts/" + firstPost._id)
+    .send();
+  expect(response.statusCode).toBe(204);
+});
+
+it("DELETE id doesnt exist /api/posts/:postId", async () => {
+  const response = await request(app)
+    .delete("/api/posts/" + firstPost._id)
+    .send();
+  expect(response.statusCode).toBe(404);
 });

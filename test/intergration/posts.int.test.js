@@ -17,3 +17,11 @@ it("should return 500 on POST /api/posts", async () => {
     message: "Post validation failed: content: Path `content` is required.",
   });
 });
+
+it("GET /api/posts", async () => {
+  const response = await request(app).get("/api/posts");
+  expect(response.statusCode).toBe(200);
+  expect(Array.isArray(response.body)).toBeTruthy();
+  expect(response.body[0].title).toBeDefined();
+  expect(response.body[0].content).toBeDefined();
+});

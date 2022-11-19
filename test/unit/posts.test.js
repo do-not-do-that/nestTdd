@@ -73,4 +73,12 @@ describe("Post Controller Get", () => {
     await postController.getPosts(req, res, next);
     expect(res._getJSONData()).toStrictEqual(allPosts);
   });
+
+  it("should handle errors", async () => {
+    const errorMessage = { message: "Error finding post data" };
+    const rejectedPromise = Promise.reject(errorMessage);
+    postModel.find.mockReturnValue(rejectedPromise);
+    await postController.getPosts(req, res, next);
+    expect(next).toBeCalledWith(errorMessage);
+  });
 });

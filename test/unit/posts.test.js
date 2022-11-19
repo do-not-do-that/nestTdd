@@ -8,6 +8,7 @@ postModel.create = jest.fn();
 postModel.find = jest.fn();
 postModel.findById = jest.fn();
 postModel.findByIdAndUpdate = jest.fn();
+postModel.findByIdAndDelete = jest.fn();
 
 const postId = "49ddkfj394739";
 const updatedPost = { title: "updated title", content: "updated content" };
@@ -159,6 +160,46 @@ describe("Post Controller update", () => {
     const rejectPromise = Promise.reject(errorMessage);
     postModel.findByIdAndUpdate.mockReturnValue(rejectPromise);
     await postController.updatePost(req, res, next);
+    expect(next).toHaveBeenCalledWith(errorMessage);
+  });
+});
+
+describe("Post Controller Delete", () => {
+  it("should have a deletePost function", () => {
+    expect(typeof postController.deletePost).toBe("function");
+  });
+
+  it("should call PostModel.findByIdAndDelete", async () => {
+    req.params.postId = postId;
+    await postController.deletePost(req, res, next);
+    expect(postModel.findByIdAndDelete).toBeCalledWith(postId);
+  });
+
+  it("should return 204 response", async () => {
+    let deletedPost = {
+      title: "deletedPost",
+      content: "it is deleted Post.",
+    };
+    postModel.findByIdAndDelete.mockReturnValue(deletedPost);
+    await postController.deletePost(req, res, next);
+    expect(res.statusCode).toBe(204);
+    expect(res._getJSONData()).toStrictEqual(deletedPost);
+    expect(res._isEndCalled()).toBeTruthy();
+  });
+
+  it("should handle 404 when item doesnt exist", async () => {
+    postModel.findByIdAndDelete.mockReturnValue(null);
+    await postController.deletePost(req, res, next);
+    expect(res.statusCode).toBe(404);
+    expect(res._isEndCalled()).toBeTruthy();
+  });
+
+  it("should handle errors", async () => {
+    const errorMessage = { message: "Error deleting" };
+    const rejectPromise = Promise.reject(errorMessage);
+    postModel.findByIdAndDelete.mockReturnValue(rejectPromise);
+
+    await postController.deletePost(req, res, next);
     expect(next).toHaveBeenCalledWith(errorMessage);
   });
 });

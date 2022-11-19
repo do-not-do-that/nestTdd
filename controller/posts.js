@@ -47,3 +47,17 @@ exports.updatePost = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.deletePost = async (req, res, next) => {
+  try {
+    const deletedPost = await postModel.findByIdAndDelete(req.params.postId);
+
+    if (deletedPost) {
+      res.status(204).json(deletedPost);
+    } else {
+      res.status(404).send();
+    }
+  } catch (error) {
+    next(error);
+  }
+};

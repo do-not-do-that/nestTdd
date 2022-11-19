@@ -7,8 +7,10 @@ const allPosts = require("../data/all-posts");
 postModel.create = jest.fn();
 postModel.find = jest.fn();
 postModel.findById = jest.fn();
+postModel.findByIdAndUpdate = jest.fn();
 
 const postId = "49ddkfj394739";
+const updatedPost = { title: "updated title", content: "updated content" };
 let req, res, next;
 
 beforeEach(() => {
@@ -117,6 +119,46 @@ describe("Post Controller getPostById", () => {
 
     postModel.findById.mockReturnValue(rejectedPromise);
     await postController.getPostById(req, res, next);
+    expect(next).toHaveBeenCalledWith(errorMessage);
+  });
+});
+
+describe("Post Controller update", () => {
+  it("should have an updatePost function", () => {
+    expect(typeof postController.updatePost).toBe("function");
+  });
+
+  it("should call postModel.findByIdAndUpdate", async () => {
+    req.params.postId = postId;
+    req.body = updatedPost;
+    await postController.updatePost(req, res, next);
+    expect(postModel.findByIdAndUpdate).toBeCalledWith(postId, updatedPost, {
+      new: true,
+    });
+  });
+
+  it("should return json body and response code 200", async () => {
+    req.params.postId = postId;
+    req.body = updatedPost;
+    postModel.findByIdAndUpdate.mockReturnValue(updatedPost);
+    await postController.updatePost(req, res, next);
+    expect(res._isEndCalled()).toBeTruthy();
+    expect(res.statusCode).toBe(200);
+    expect(res._getJSONData()).toStrictEqual(updatedPost);
+  });
+
+  it("should return 404 when item doesnt exist", async () => {
+    postModel.findByIdAndUpdate.mockReturnValue(null);
+    await postController.updatePost(req, res, next);
+    expect(res.statusCode).toBe(404);
+    expect(res._isEndCalled()).toBeTruthy();
+  });
+
+  it("should handle errors", async () => {
+    const errorMessage = { message: "Error" };
+    const rejectPromise = Promise.reject(errorMessage);
+    postModel.findByIdAndUpdate.mockReturnValue(rejectPromise);
+    await postController.updatePost(req, res, next);
     expect(next).toHaveBeenCalledWith(errorMessage);
   });
 });
